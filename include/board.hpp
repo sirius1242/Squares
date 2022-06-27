@@ -19,8 +19,10 @@ class squares{
 		} shape;
 
 		void init();
-		bool insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
+		bool tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
+		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		shape rotate(int cmnum, int rotation);
+		int getelem(int y, int x) {return board[y][x];};
 		bool check();
 
 		shape chessshapes[21] = {

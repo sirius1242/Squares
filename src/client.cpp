@@ -13,6 +13,25 @@ void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid
 	}
 }
 
+void render_board(SDL_Renderer *renderer)
+{
+	for(int i=0; i<BHEIGHT; i++)
+		for(int j=0; j<BWIDTH; j++)
+		{
+			if(board.getelem(i, j) >= 0)
+			{
+				SDL_Color grid_color = grid_cursor_colors[board.getelem(i, j)];
+				SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
+				SDL_Rect tmp;
+				tmp.x = j * GRID_SIZE;
+				tmp.y = i * GRID_SIZE;
+				tmp.w = GRID_SIZE;
+				tmp.h = GRID_SIZE;
+				SDL_RenderFillRect(renderer, &tmp);
+			}
+		}
+}
+
 int main()
 {
 	board.init();
@@ -20,6 +39,8 @@ int main()
     int grid_width = BWIDTH;
     int grid_height = BHEIGHT;
 	int rotation = 0;
+	id = 0;
+	chessman = 15;
 
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + 1;
@@ -58,6 +79,7 @@ int main()
     SDL_bool quit = SDL_FALSE;
     SDL_bool mouse_active = SDL_FALSE;
     SDL_bool mouse_hover = SDL_FALSE;
+	grid_cursor_ghost_color = grid_cursor_ghost_colors[id];
 
     while (!quit) {
         SDL_Event event;
@@ -88,6 +110,7 @@ int main()
 				{
 					grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
 					grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+					board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, false);
 				}
 				else if(event.button.button == SDL_BUTTON_RIGHT)
 				{
@@ -135,7 +158,10 @@ int main()
 
         // Draw grid ghost cursor.
         if (mouse_active && mouse_hover) {
-			insert(renderer, 10, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
+			//if(board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, false))
+				insert(renderer, chessman, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
+			//else
+			//	insert(renderer, chessman, grid_cursor_ghost, grid_wrong_color, rotation);
 			/*
             SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
                                    grid_cursor_ghost_color.g,
@@ -146,13 +172,14 @@ int main()
         }
 
         // Draw grid cursor.
-		insert(renderer, 10, grid_cursor, grid_cursor_color, rotation);
+		//insert(renderer, 10, grid_cursor, grid_cursor_color, rotation);
 		/*
         SDL_SetRenderDrawColor(renderer, grid_cursor_color.r,
                                grid_cursor_color.g, grid_cursor_color.b,
                                grid_cursor_color.a);
         SDL_RenderFillRect(renderer, &grid_cursor);
 		*/
+		render_board(renderer);
 
         SDL_RenderPresent(renderer);
     }

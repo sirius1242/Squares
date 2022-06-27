@@ -7,7 +7,10 @@ std::pair<T,U> operator+(const std::pair<T,U> & l,const std::pair<T,U> & r) {
 
 void squares::init()
 {
-	memset(board, 0, BWIDTH*BHEIGHT*sizeof(int));
+	//memset(board, 0, BWIDTH*BHEIGHT*sizeof(int));
+	for(int i=0; i<BHEIGHT; i++)
+		for(int j=0; j<BHEIGHT; j++)
+			board[i][j] = -1;
 	for(int i=0; i<PNUM; i++)
 	{
 		for(int j=0; j<CHESSNUM; j++)
@@ -18,7 +21,7 @@ void squares::init()
 	}
 }
 
-bool squares::insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
+bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
 {
 	bool canplace = false;
 	squares::shape tmp = rotate(cmnum, rotation);
@@ -84,6 +87,13 @@ bool squares::insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bo
 		}
 	}
 	return canplace;
+}
+
+void squares::insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
+{
+	squares::shape tmp = rotate(cmnum, rotation);
+	for(int i=0; i<tmp.size; i++)
+		board[tmp.grids[i].first + coor_lt.first][tmp.grids[i].second + coor_lt.second] = np;
 }
 
 squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 is 270, clockwise
