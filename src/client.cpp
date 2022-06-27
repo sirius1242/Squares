@@ -41,6 +41,7 @@ int main()
 	int rotation = 0;
 	id = 0;
 	chessman = 15;
+	bool firstround = true;
 
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + 1;
@@ -110,7 +111,12 @@ int main()
 				{
 					grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
 					grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-					board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, false);
+					if(board.tryinsert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround))
+					{
+						board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround);
+						if(firstround)
+							firstround = false;
+					}
 				}
 				else if(event.button.button == SDL_BUTTON_RIGHT)
 				{
@@ -158,10 +164,10 @@ int main()
 
         // Draw grid ghost cursor.
         if (mouse_active && mouse_hover) {
-			//if(board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, false))
+			if(board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, firstround))
 				insert(renderer, chessman, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
-			//else
-			//	insert(renderer, chessman, grid_cursor_ghost, grid_wrong_color, rotation);
+			else
+				insert(renderer, chessman, grid_cursor_ghost, grid_wrong_color, rotation);
 			/*
             SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
                                    grid_cursor_ghost_color.g,

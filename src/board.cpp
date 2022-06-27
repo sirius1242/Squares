@@ -23,6 +23,7 @@ void squares::init()
 
 bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
 {
+	//cout << "try to insert chessman in (" << coor_lt.first << ", " << coor_lt.second << ")" << endl;
 	bool canplace = false;
 	squares::shape tmp = rotate(cmnum, rotation);
 	if(first_round)
@@ -31,25 +32,24 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 		switch (np)
 		{
 		case 1:
-			corner.second = BWIDTH;
+			corner.second = BWIDTH-1;
 			break;
 
 		case 2:
-			corner.first = BHEIGHT;
+			corner.first = BHEIGHT-1;
 			break;
 
 		case 3:
-			corner.first = BHEIGHT;
-			corner.second = BWIDTH;
+			corner.first = BHEIGHT-1;
+			corner.second = BWIDTH-1;
 
 		default:
 			break;
 		}
 		for(int i=0; i<tmp.size; i++)
 		{
-			tmp.grids[i].first += coor_lt.first;
-			tmp.grids[i].second += coor_lt.second;
-			if(tmp.grids[i].first < 0 || tmp.grids[i].first > BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second > BWIDTH)
+			tmp.grids[i] = tmp.grids[i] + coor_lt;
+			if(tmp.grids[i].first < 0 || tmp.grids[i].first >= BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second >= BWIDTH)
 				return false;
 			if(tmp.grids[i] == corner)
 				canplace = true;
@@ -60,29 +60,41 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 		set<pair<int, int>> inchess;
 		for(int i=0; i<tmp.size; i++)
 		{
-			tmp.grids[i].first += coor_lt.first;
-			tmp.grids[i].second += coor_lt.second;
-			if(tmp.grids[i].first < 0 || tmp.grids[i].first > BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second > BWIDTH)
+			tmp.grids[i] = tmp.grids[i] + coor_lt;
+			if(tmp.grids[i].first < 0 || tmp.grids[i].first >= BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second >= BWIDTH)
 				return false;
-			if(board[tmp.grids[i].first][tmp.grids[i].second]) // no other chessman on that grid
+			if(board[tmp.grids[i].first][tmp.grids[i].second] >= 0) // no other chessman on that grid
 				return false;
 			inchess.insert(tmp.grids[i]);
+		}
+		for(int i=0; i<tmp.size; i++)
+		{
 			pair<int, int> check;
 			for(int j=0; j<4; j++) // check corner
 			{
 				check = tmp.grids[i] + corners[j];
-				if(check.first < 0 || check.first > BHEIGHT || check.second < 0 || check.second > BWIDTH)
+				if(check.first < 0 || check.first >= BHEIGHT || check.second < 0 || check.second >= BWIDTH)
 					continue;
-				if(board[check.first][check.second] == np)
+				if(!inchess.count(check)&&board[check.first][check.second] == np)
+				{
 					canplace = true;
+					break;
+				}
 			}
+		}
+		for(int i=0; i<tmp.size; i++)
+		{
+			pair<int, int> check;
 			for(int j=0; j<4; j++) // check edge
 			{
 				check = tmp.grids[i] + edges[j];
-				if(check.first < 0 || check.first > BHEIGHT || check.second < 0 || check.second > BWIDTH)
+				if(check.first < 0 || check.first >= BHEIGHT || check.second < 0 || check.second >= BWIDTH)
 					continue;
-				if(board[check.first][check.second] == np)
+				if(!inchess.count(check)&&board[check.first][check.second] == np)
+				{
 					canplace = false;
+					break;
+				}
 			}
 		}
 	}
@@ -126,7 +138,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 			break;
 
 		case 3:
-			dst.grids[i].first = dst.width - src->grids[i].second;
+			dst.grids[i].first = dst.width - src->grids[i].second - 1;
 			dst.grids[i].second = src->grids[i].first;
 			break;
 
