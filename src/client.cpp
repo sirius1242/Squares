@@ -32,6 +32,27 @@ void render_board(SDL_Renderer *renderer)
 		}
 }
 
+void render_selector(SDL_Renderer *renderer, int xoffset, int id)
+{
+	for(int i=0; i<CHESSNUM; i++)
+	{
+		SDL_Rect base;
+		SDL_Color grid_color = grid_cursor_colors[id];
+		SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
+		base.x = selector_pos[i].first * S_SELECELL + xoffset;
+		base.y = selector_pos[i].second * S_SELECELL;
+		base.w = S_SELECELL;
+		base.h = S_SELECELL;
+		for(int j=0; j<board.chessshapes[i].size; j++)
+		{
+			SDL_Rect draw = base;
+			draw.x += board.chessshapes[i].grids[j].second * S_SELECELL;
+			draw.y += board.chessshapes[i].grids[j].first * S_SELECELL;
+			SDL_RenderFillRect(renderer, &draw);
+		}
+	}
+}
+
 int main()
 {
 	board.init();
@@ -44,7 +65,8 @@ int main()
 	bool firstround = true;
 
     // + 1 so that the last grid lines fit in the screen.
-    int window_width = (grid_width * grid_cell_size) + 1;
+    int window_width = (grid_width * grid_cell_size) + (W_SELECTOR * S_SELECELL) + 1;
+    int board_width = (grid_width * grid_cell_size) + 1;
     int window_height = (grid_height * grid_cell_size) + 1;
 
     // Place the grid cursor in the middle of the screen.
@@ -75,7 +97,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    SDL_SetWindowTitle(window, "SDL Grid");
+    SDL_SetWindowTitle(window, "Squares");
 
     SDL_bool quit = SDL_FALSE;
     SDL_bool mouse_active = SDL_FALSE;
@@ -159,7 +181,7 @@ int main()
 
         for (int y = 0; y < 1 + grid_height * grid_cell_size;
              y += grid_cell_size) {
-            SDL_RenderDrawLine(renderer, 0, y, window_width, y);
+            SDL_RenderDrawLine(renderer, 0, y, board_width, y);
         }
 
         // Draw grid ghost cursor.
@@ -185,6 +207,7 @@ int main()
                                grid_cursor_color.a);
         SDL_RenderFillRect(renderer, &grid_cursor);
 		*/
+		render_selector(renderer, board_width, id);
 		render_board(renderer);
 
         SDL_RenderPresent(renderer);
