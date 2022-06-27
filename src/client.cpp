@@ -1,12 +1,25 @@
-#include "board.hpp"
-#include <SDL2/SDL.h>
+#include "client.hpp"
+
+void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid_color, int rotation)
+{
+	SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
+	squares::shape chessman = board.rotate(cmnum, rotation);
+	for(int i=0; i<chessman.size; i++)
+	{
+		SDL_Rect tmp = topleft;
+		tmp.x += chessman.grids[i].second * GRID_SIZE;
+		tmp.y += chessman.grids[i].first * GRID_SIZE;
+        SDL_RenderFillRect(renderer, &tmp);
+	}
+}
 
 int main()
 {
-	squares board;
-	int grid_cell_size = 36;
-    int grid_width = 29;
-    int grid_height = 23;
+	board.init();
+	int grid_cell_size = GRID_SIZE;
+    int grid_width = BWIDTH;
+    int grid_height = BHEIGHT;
+	int rotation = 0;
 
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + 1;
@@ -24,18 +37,6 @@ int main()
     // mouse cursor.
     SDL_Rect grid_cursor_ghost = {grid_cursor.x, grid_cursor.y, grid_cell_size,
                                   grid_cell_size};
-
-    // Dark theme.
-    // SDL_Color grid_background = {22, 22, 22, 255}; // Barely Black
-    // SDL_Color grid_line_color = {44, 44, 44, 255}; // Dark grey
-    // SDL_Color grid_cursor_ghost_color = {44, 44, 44, 255};
-    // SDL_Color grid_cursor_color = {255, 255, 255, 255}; // White
-
-    // Light Theme.
-    SDL_Color grid_background = {233, 233, 233, 255}; // Barely white
-    SDL_Color grid_line_color = {200, 200, 200, 255}; // Very light grey
-    SDL_Color grid_cursor_ghost_color = {200, 200, 200, 255};
-    SDL_Color grid_cursor_color = {160, 160, 160, 255}; // Grey
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Initialize SDL: %s",
@@ -83,8 +84,16 @@ int main()
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
-                grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+				if(event.button.button == SDL_BUTTON_LEFT)
+				{
+					grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
+					grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+				}
+				else if(event.button.button == SDL_BUTTON_RIGHT)
+				{
+					rotation++;
+					rotation %= 4;
+				}
                 break;
             case SDL_MOUSEMOTION:
                 grid_cursor_ghost.x = (event.motion.x / grid_cell_size) * grid_cell_size;
@@ -126,18 +135,24 @@ int main()
 
         // Draw grid ghost cursor.
         if (mouse_active && mouse_hover) {
+			insert(renderer, 10, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
+			/*
             SDL_SetRenderDrawColor(renderer, grid_cursor_ghost_color.r,
                                    grid_cursor_ghost_color.g,
                                    grid_cursor_ghost_color.b,
                                    grid_cursor_ghost_color.a);
             SDL_RenderFillRect(renderer, &grid_cursor_ghost);
+			*/
         }
 
         // Draw grid cursor.
+		insert(renderer, 10, grid_cursor, grid_cursor_color, rotation);
+		/*
         SDL_SetRenderDrawColor(renderer, grid_cursor_color.r,
                                grid_cursor_color.g, grid_cursor_color.b,
                                grid_cursor_color.a);
         SDL_RenderFillRect(renderer, &grid_cursor);
+		*/
 
         SDL_RenderPresent(renderer);
     }

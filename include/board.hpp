@@ -10,9 +10,7 @@ using namespace std;;
 #define MAXSIZE 5
 
 class squares{
-	private:
-		int board[BWIDTH][BHEIGHT];
-
+	public:
 		typedef struct {
 			pair<int, int> grids[MAXSIZE];
 			int width;
@@ -20,15 +18,10 @@ class squares{
 			int size;
 		} shape;
 
-		typedef struct {
-			bool use;
-			shape cmshape;
-		} chessman;
-
-		chessman chesses[PNUM][CHESSNUM];
-		//char colors[4] = {'r', 'y', 'b', 'g'};
-		pair<int, int> corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-		pair<int, int> edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+		void init();
+		bool insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
+		shape rotate(int cmnum, int rotation);
+		bool check();
 
 		shape chessshapes[21] = {
 			{{{0, 0}}, 1, 1, 1}, // *
@@ -76,9 +69,16 @@ class squares{
 															 //* *
 		};
 
-	public:
-		void init();
-		bool insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
-		shape rotate(int cmnum, int rotation);
-		bool check();
+	private:
+		int board[BWIDTH][BHEIGHT];
+
+		typedef struct {
+			bool use;
+			shape cmshape;
+		} chessman;
+
+		chessman chesses[PNUM][CHESSNUM];
+		//char colors[4] = {'r', 'y', 'b', 'g'};
+		pair<int, int> corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+		pair<int, int> edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 };
