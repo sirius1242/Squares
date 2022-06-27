@@ -54,7 +54,11 @@ void render_selector(SDL_Renderer *renderer, int xoffset, int id)
 	for(int i=0; i<CHESSNUM; i++)
 	{
 		SDL_Rect base;
-		SDL_Color grid_color = grid_cursor_colors[id];
+		SDL_Color grid_color;
+		if(board.checkused(i, id))
+			grid_color = grid_wrong_color;
+		else
+			grid_color = grid_cursor_colors[id];
 		SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
 		base.x = selector_pos[i].first * S_SELECELL + xoffset;
 		base.y = selector_pos[i].second * S_SELECELL;
@@ -160,7 +164,10 @@ int main()
 						}
 					}
 					else if(is_selector(event.motion.x, event.motion.y, board_width) >= 0)
+					{
 						chessman = is_selector(event.motion.x, event.motion.y, board_width);
+						rotation = 0;
+					}
 				}
 				else if(event.button.button == SDL_BUTTON_RIGHT)
 				{

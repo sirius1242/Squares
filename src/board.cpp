@@ -26,6 +26,8 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 	//cout << "try to insert chessman in (" << coor_lt.first << ", " << coor_lt.second << ")" << endl;
 	bool canplace = false;
 	squares::shape tmp = rotate(cmnum, rotation);
+	if(chesses[np][cmnum].use)
+		return false;
 	if(first_round)
 	{
 		pair<int, int> corner = {0, 0};
@@ -106,6 +108,7 @@ void squares::insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bo
 	squares::shape tmp = rotate(cmnum, rotation);
 	for(int i=0; i<tmp.size; i++)
 		board[tmp.grids[i].first + coor_lt.first][tmp.grids[i].second + coor_lt.second] = np;
+	chesses[np][cmnum].use = true;
 }
 
 squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 is 270, clockwise
@@ -128,8 +131,8 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 		switch (rotation)
 		{
 		case 1:
-			dst.grids[i].first = src->grids[i].second - 1;
-			dst.grids[i].second = dst.height - src->grids[i].first - 1;
+			dst.grids[i].first = src->grids[i].second;
+			dst.grids[i].second = dst.width - src->grids[i].first - 1;
 			break;
 
 		case 2:
@@ -138,7 +141,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 			break;
 
 		case 3:
-			dst.grids[i].first = dst.width - src->grids[i].second - 1;
+			dst.grids[i].first = dst.height - src->grids[i].second - 1;
 			dst.grids[i].second = src->grids[i].first;
 			break;
 

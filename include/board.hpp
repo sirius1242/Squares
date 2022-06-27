@@ -23,6 +23,7 @@ class squares{
 		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		shape rotate(int cmnum, int rotation);
 		int getelem(int y, int x) {return board[y][x];};
+		bool checkused(int cmnum, int np) {return chesses[np][cmnum].use;};
 		bool check();
 
 		shape chessshapes[21] = {
