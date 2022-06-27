@@ -1,5 +1,22 @@
 #include "client.hpp"
 
+int is_selector(int x, int y, int xoffset)
+{
+	for(int i=0; i<CHESSNUM; i++)
+	{
+		if(x >= selector_pos[i].first * S_SELECELL + xoffset &&
+		   x <= selector_pos[i].first * S_SELECELL + xoffset + board.chessshapes[i].width * S_SELECELL &&
+		   y >= selector_pos[i].second * S_SELECELL &&
+		   y <= selector_pos[i].second * S_SELECELL + board.chessshapes[i].height * S_SELECELL
+		)
+		{
+			//cout << "selected chessman No." << i << endl;
+			return i;
+		}
+	}
+	return -1;
+}
+
 void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid_color, int rotation)
 {
 	SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
@@ -61,7 +78,7 @@ int main()
     int grid_height = BHEIGHT;
 	int rotation = 0;
 	id = 0;
-	chessman = 15;
+	chessman = 0;
 	bool firstround = true;
 
     // + 1 so that the last grid lines fit in the screen.
@@ -131,14 +148,19 @@ int main()
             case SDL_MOUSEBUTTONDOWN:
 				if(event.button.button == SDL_BUTTON_LEFT)
 				{
-					grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
-					grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-					if(board.tryinsert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround))
+					if(event.motion.x < board_width)
 					{
-						board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround);
-						if(firstround)
-							firstround = false;
+						grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
+						grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
+						if(board.tryinsert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround))
+						{
+							board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround);
+							if(firstround)
+								firstround = false;
+						}
 					}
+					else if(is_selector(event.motion.x, event.motion.y, board_width) >= 0)
+						chessman = is_selector(event.motion.x, event.motion.y, board_width);
 				}
 				else if(event.button.button == SDL_BUTTON_RIGHT)
 				{
