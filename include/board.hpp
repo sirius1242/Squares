@@ -26,6 +26,9 @@ class squares{
 		bool checkused(int cmnum, int np) {return chesses[np][cmnum].use;};
 		bool check();
 
+	private:
+		int board[BWIDTH][BHEIGHT];
+
 		shape chessshapes[21] = {
 			{{{0, 0}}, 1, 1, 1}, // *
 			{{{0, 0}, {0, 1}}, 2, 1, 2}, // **
@@ -71,9 +74,6 @@ class squares{
 			{{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}}, 3, 2, 5} //***
 															 	//* *
 		};
-
-	private:
-		int board[BWIDTH][BHEIGHT];
 
 		typedef struct {
 			bool use;

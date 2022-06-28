@@ -2,12 +2,12 @@
 
 int is_selector(int x, int y, int xoffset)
 {
-	for(int i=0; i<CHESSNUM; i++)
+	for (int i=0; i<CHESSNUM; i++)
 	{
-		if(x >= selector_pos[i].first * S_SELECELL + xoffset &&
-		   x <= selector_pos[i].first * S_SELECELL + xoffset + board.chessshapes[i].width * S_SELECELL &&
+		if (x >= selector_pos[i].first * S_SELECELL + xoffset &&
+		   x <= selector_pos[i].first * S_SELECELL + xoffset + board.rotate(i, 0).width * S_SELECELL &&
 		   y >= selector_pos[i].second * S_SELECELL &&
-		   y <= selector_pos[i].second * S_SELECELL + board.chessshapes[i].height * S_SELECELL
+		   y <= selector_pos[i].second * S_SELECELL + board.rotate(i, 0).height * S_SELECELL
 		)
 		{
 			//cout << "selected chessman No." << i << endl;
@@ -17,11 +17,25 @@ int is_selector(int x, int y, int xoffset)
 	return -1;
 }
 
+int is_rotator(int x, int y, int xoffset, int yoffset, int cmnum)
+{
+	for(int i=0; i<8; i++)
+	{
+		if (x >= (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset &&
+			x <= (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset + board.rotate(cmnum, 0).width * S_ROTACELL &&
+			y >= yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL &&
+			y <= yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL + board.rotate(cmnum, 0).height * S_ROTACELL
+		)
+			return i;
+	}
+	return -1;
+}
+
 void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid_color, int rotation)
 {
 	SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
 	squares::shape chessman = board.rotate(cmnum, rotation);
-	for(int i=0; i<chessman.size; i++)
+	for (int i=0; i<chessman.size; i++)
 	{
 		SDL_Rect tmp = topleft;
 		tmp.x += chessman.grids[i].second * GRID_SIZE;
@@ -32,10 +46,10 @@ void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid
 
 void render_board(SDL_Renderer *renderer)
 {
-	for(int i=0; i<BHEIGHT; i++)
-		for(int j=0; j<BWIDTH; j++)
+	for (int i=0; i<BHEIGHT; i++)
+		for (int j=0; j<BWIDTH; j++)
 		{
-			if(board.getelem(i, j) >= 0)
+			if (board.getelem(i, j) >= 0)
 			{
 				SDL_Color grid_color = grid_cursor_colors[board.getelem(i, j)];
 				SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
@@ -51,11 +65,11 @@ void render_board(SDL_Renderer *renderer)
 
 void render_selector(SDL_Renderer *renderer, int xoffset, int id)
 {
-	for(int i=0; i<CHESSNUM; i++)
+	for (int i=0; i<CHESSNUM; i++)
 	{
 		SDL_Rect base;
 		SDL_Color grid_color;
-		if(board.checkused(i, id))
+		if (board.checkused(i, id))
 			grid_color = grid_wrong_color;
 		else
 			grid_color = grid_cursor_colors[id];
@@ -64,14 +78,56 @@ void render_selector(SDL_Renderer *renderer, int xoffset, int id)
 		base.y = selector_pos[i].second * S_SELECELL;
 		base.w = S_SELECELL;
 		base.h = S_SELECELL;
-		for(int j=0; j<board.chessshapes[i].size; j++)
+		for (int j=0; j<board.rotate(i, 0).size; j++)
 		{
 			SDL_Rect draw = base;
-			draw.x += board.chessshapes[i].grids[j].second * S_SELECELL;
-			draw.y += board.chessshapes[i].grids[j].first * S_SELECELL;
+			draw.x += board.rotate(i, 0).grids[j].second * S_SELECELL;
+			draw.y += board.rotate(i, 0).grids[j].first * S_SELECELL;
 			SDL_RenderFillRect(renderer, &draw);
 		}
 	}
+}
+
+void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum, int id)
+{
+	for (int i=0; i<8; i++)
+	{
+		SDL_Rect base;
+		SDL_Color grid_color;
+		squares::shape rotator;
+		if (board.checkused(i, id))
+			grid_color = grid_wrong_color;
+		else
+			grid_color = grid_cursor_colors[id];
+		SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
+		base.x = (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset;
+		base.y = yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL;
+		base.w = S_ROTACELL;
+		base.h = S_ROTACELL;
+		rotator = board.rotate(cmnum, i);
+		for (int j=0; j<rotator.size; j++)
+		{
+			SDL_Rect draw = base;
+			draw.x += rotator.grids[j].second * S_ROTACELL;
+			draw.y += rotator.grids[j].first * S_ROTACELL;
+			SDL_RenderFillRect(renderer, &draw);
+		}
+	}
+}
+
+bool render_ghost(SDL_Rect &topleft, int yoffset, int xoffset, int cmnum, int rotation)
+{
+	if(rotation % 2)
+	{
+		if(topleft.x + board.rotate(cmnum, 0).height * GRID_SIZE > xoffset || topleft.y + board.rotate(cmnum, 0).width * GRID_SIZE > yoffset)
+			return false;
+	}
+	else
+	{
+		if(topleft.x + board.rotate(cmnum, 0).width * GRID_SIZE > xoffset || topleft.y + board.rotate(cmnum, 0).height * GRID_SIZE > yoffset)
+			return false;
+	}
+	return true;
 }
 
 int main()
@@ -88,7 +144,10 @@ int main()
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + (W_SELECTOR * S_SELECELL) + 1;
     int board_width = (grid_width * grid_cell_size) + 1;
-    int window_height = (grid_height * grid_cell_size) + 1;
+	int window_height = (grid_height * grid_cell_size) + 1;
+	int selector_height = 21 * S_SELECELL;
+    //int window_height = (grid_height * grid_cell_size) + (H_ROTATOR * S_SELECELL) + 1;
+	//int board_height = (grid_height * grid_cell_size) + 1;
 
     // Place the grid cursor in the middle of the screen.
     SDL_Rect grid_cursor = {
@@ -150,29 +209,37 @@ int main()
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
-				if(event.button.button == SDL_BUTTON_LEFT)
+				if (event.button.button == SDL_BUTTON_LEFT)
 				{
-					if(event.motion.x < board_width)
+					if (event.motion.x < board_width)
 					{
 						grid_cursor.x = (event.motion.x / grid_cell_size) * grid_cell_size;
 						grid_cursor.y = (event.motion.y / grid_cell_size) * grid_cell_size;
-						if(board.tryinsert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround))
+						if (board.tryinsert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround))
 						{
 							board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround);
-							if(firstround)
+							if (firstround)
 								firstround = false;
 						}
 					}
-					else if(is_selector(event.motion.x, event.motion.y, board_width) >= 0)
+					else if (event.motion.y < selector_height)
 					{
-						chessman = is_selector(event.motion.x, event.motion.y, board_width);
-						rotation = 0;
+						if (is_selector(event.motion.x, event.motion.y, board_width) >= 0)
+						{
+							chessman = is_selector(event.motion.x, event.motion.y, board_width);
+							rotation = 0;
+						}
+					}
+					else
+					{
+						if (is_rotator(event.motion.x, event.motion.y, board_width, window_height, chessman) >= 0)
+							rotation = is_rotator(event.motion.x, event.motion.y, board_width, window_height, chessman);
 					}
 				}
-				else if(event.button.button == SDL_BUTTON_RIGHT)
+				else if (event.button.button == SDL_BUTTON_RIGHT)
 				{
 					rotation++;
-					rotation %= 4;
+					rotation %= 8;
 				}
                 break;
             case SDL_MOUSEMOTION:
@@ -212,10 +279,13 @@ int main()
              y += grid_cell_size) {
             SDL_RenderDrawLine(renderer, 0, y, board_width, y);
         }
+		// Draw selector break line
+		for(int i=0; i<3; i++)
+			SDL_RenderDrawLine(renderer, board_width, selector_height+i, window_width, selector_height+i);
 
         // Draw grid ghost cursor.
-        if (mouse_active && mouse_hover) {
-			if(board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, firstround))
+        if (mouse_active && mouse_hover && render_ghost(grid_cursor_ghost, window_height, board_width, chessman, rotation)) {
+			if (board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, firstround))
 				insert(renderer, chessman, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
 			else
 				insert(renderer, chessman, grid_cursor_ghost, grid_wrong_color, rotation);
@@ -237,6 +307,7 @@ int main()
         SDL_RenderFillRect(renderer, &grid_cursor);
 		*/
 		render_selector(renderer, board_width, id);
+		render_rotator(renderer, window_height, board_width, chessman, id);
 		render_board(renderer);
 
         SDL_RenderPresent(renderer);
