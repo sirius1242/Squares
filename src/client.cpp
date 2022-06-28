@@ -1,5 +1,16 @@
 #include "client.hpp"
 
+Uint32 timeleft(Uint32 next_time)
+{
+	Uint32 now;
+	now = SDL_GetTicks();
+	if(next_time <= now)
+		return 0;
+	else
+		return next_time - now;
+
+}
+
 int is_selector(int x, int y, int xoffset)
 {
 	for (int i=0; i<CHESSNUM; i++)
@@ -11,7 +22,7 @@ int is_selector(int x, int y, int xoffset)
 		)
 		{
 			//cout << "selected chessman No." << i << endl;
-			return i;
+				return i;
 		}
 	}
 	return -1;
@@ -95,7 +106,7 @@ void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum,
 		SDL_Rect base;
 		SDL_Color grid_color;
 		squares::shape rotator;
-		if (board.checkused(i, id))
+		if (board.checkused(cmnum, id))
 			grid_color = grid_wrong_color;
 		else
 			grid_color = grid_cursor_colors[id];
@@ -140,6 +151,8 @@ int main()
 	id = 0;
 	chessman = 0;
 	bool firstround = true;
+	double interval = SDL_TICKSPEED/FPS_LIMIT;
+	Uint32 next_time;
 
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + (W_SELECTOR * S_SELECELL) + 1;
@@ -184,6 +197,7 @@ int main()
     SDL_bool mouse_hover = SDL_FALSE;
 	grid_cursor_ghost_color = grid_cursor_ghost_colors[id];
 
+	next_time = SDL_GetTicks();
     while (!quit) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -264,6 +278,8 @@ int main()
         // Draw grid background.
         SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g,
                                grid_background.b, grid_background.a);
+		SDL_Delay(timeleft(next_time));
+		next_time += interval;
         SDL_RenderClear(renderer);
 
         // Draw grid lines.
