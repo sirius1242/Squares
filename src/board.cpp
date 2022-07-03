@@ -116,7 +116,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 	squares::shape dst;
 	squares::shape *src = &chessshapes[cmnum];
 	dst.size = src->size;
-	if(rotation == 2 || rotation == 0)
+	if(rotation % 2 == 0)
 	{
 		dst.height = src->height;
 		dst.width = src->width;
