@@ -155,14 +155,14 @@ int main()
 	chessman = 0;
 	rotation = 0;
 	bool firstround = true;
-	double interval = SDL_TICKSPEED/FPS_LIMIT;
+	double interval = static_cast<double>(SDL_TICKSPEED) / FPS_LIMIT;
 	Uint32 next_time;
 
     // + 1 so that the last grid lines fit in the screen.
     int window_width = (grid_width * grid_cell_size) + (W_SELECTOR * S_SELECELL) + 1;
     int board_width = (grid_width * grid_cell_size) + 1;
 	int window_height = (grid_height * grid_cell_size) + 1;
-	int selector_height = 21 * S_SELECELL;
+	int selector_height = BSIZE * S_SELECELL;
     //int window_height = (grid_height * grid_cell_size) + (H_ROTATOR * S_SELECELL) + 1;
 	//int board_height = (grid_height * grid_cell_size) + 1;
 

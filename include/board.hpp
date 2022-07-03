@@ -1,10 +1,14 @@
+#ifndef _BOARD_HPP
+#define _BOARD_HPP
+
 #include <iostream>
 #include <vector>
 #include <set>
 using namespace std;;
 
-#define BWIDTH 21
-#define BHEIGHT 21
+#define BSIZE 21
+#define BWIDTH BSIZE
+#define BHEIGHT BSIZE
 #define PNUM 4 // Max player number
 #define CHESSNUM 21 // chessman numbers
 #define MAXSIZE 5 // chessman max grid size
@@ -91,3 +95,5 @@ class squares{
 		coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 		coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 };
+
+#endif // _BOARD_HPP
