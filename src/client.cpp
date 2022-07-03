@@ -33,9 +33,9 @@ int is_rotator(int x, int y, int xoffset, int yoffset, int cmnum)
 	for(int i=0; i<8; i++)
 	{
 		if (x >= (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset &&
-			x <= (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset + board.rotate(cmnum, 0).width * S_ROTACELL &&
+			x <= (i % 4 * W_ROTATOR + 2) * S_ROTACELL + xoffset + board.rotate(cmnum, i).width * S_ROTACELL &&
 			y >= yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL &&
-			y <= yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL + board.rotate(cmnum, 0).height * S_ROTACELL
+			y <= yoffset - ((2 - i / 4) * W_ROTATOR + 1) * S_ROTACELL + board.rotate(cmnum, i).height * S_ROTACELL
 		)
 			return i;
 	}

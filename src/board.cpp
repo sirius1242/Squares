@@ -37,11 +37,11 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 			corner.second = BWIDTH-1;
 			break;
 
-		case 2:
+		case 3:
 			corner.first = BHEIGHT-1;
 			break;
 
-		case 3:
+		case 2:
 			corner.first = BHEIGHT-1;
 			corner.second = BWIDTH-1;
 
