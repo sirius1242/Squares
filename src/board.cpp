@@ -2,7 +2,11 @@
 
 template <typename T,typename U>
 std::pair<T,U> operator+(const std::pair<T,U> & l,const std::pair<T,U> & r) {
-    return {l.first+r.first,l.second+r.second};
+	return {l.first+r.first,l.second+r.second};
+}
+
+static bool in_range(const std::pair<int, int> &l) {
+	return l.first >= 0 && l.first < BWIDTH && l.second >= 0 && l.second < BHEIGHT;
 }
 
 void squares::init()
@@ -174,7 +178,75 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 	return dst;
 }
 
+bool squares::checkplayer(int np) {
+	/** bstatus: Board status
+	 *	 0: This cell is not adjacent to any existing pieces
+	 *	 1: This cell is diagonally adjacent to an existing piece
+	 *	 2: This cell is orthogonally adjacent to, or already covered by, an existing piece
+	 */
+	int bstatus[BWIDTH][BHEIGHT] = {};
+	for (int y = 0; y < BHEIGHT; y++) {
+		for (int x = 0; x < BWIDTH; x++) {
+			coord pos = {x, y};
+			// Mark occupied cells
+			if (at(pos) != -1)
+				bstatus[pos.first][pos.second] = 2;
+			// Calculate adjacency only for same-color cells
+			if (at(pos) != np)
+				continue;
+
+			for (const auto& edge : edges) {
+				coord newpos = pos + edge;
+				if (in_range(newpos))
+					bstatus[newpos.first][newpos.second] = 2;
+			}
+			for (const auto& corner : corners) {
+				coord newpos = pos + corner;
+				if (in_range(newpos) && bstatus[newpos.first][newpos.second] < 2)
+					bstatus[newpos.first][newpos.second] = 1;
+			}
+		}
+	}
+	std::vector<coord> musts;
+	for (int y = 0; y < BHEIGHT; y++) {
+		for (int x = 0; x < BWIDTH; x++) {
+			coord pos = {x, y};
+			if (bstatus[pos.first][pos.second] == 1)
+				musts.push_back(pos);
+		}
+	}
+
+	// Enumerate all remaining pieces over all "must cover" cells
+	for (int i = 0; i < CHESSNUM; i++) {
+		if (checkused(i, np))
+			continue;
+		for (const coord &must : musts) {
+			for (int r = 0; r < ROTATIONS; r++) {
+				int loop_w = chessshapes[i].width,
+					loop_h = chessshapes[i].height;
+				if (r % 2 == 1) {
+					int tmp = loop_w;
+					loop_w = loop_h;
+					loop_h = tmp;
+				}
+				for (int y = 0; y < loop_h; y++) {
+					for (int x = 0; x < loop_w; x++) {
+						coord off(-x, -y); // Move up and left
+						coord pos = must + off;
+						if (in_range(pos) && tryinsert(i, r, pos, np, false))
+							return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool squares::check(vector<int> &loseplayers)
 {
+	for (int i = 0; i < PNUM; i++)
+		if (!checkplayer(i))
+			loseplayers.push_back(i);
 	return true;
 }
