@@ -82,6 +82,8 @@ void render_selector(SDL_Renderer *renderer, int xoffset, int id)
 		SDL_Color grid_color;
 		if (board.checkused(i, id))
 			grid_color = grid_wrong_color;
+		else if(chessman == i)
+			grid_color = grid_cursor_ghost_colors[id];
 		else
 			grid_color = grid_cursor_colors[id];
 		SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
@@ -108,6 +110,8 @@ void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum,
 		squares::shape rotator;
 		if (board.checkused(cmnum, id))
 			grid_color = grid_wrong_color;
+		else if(rotation == i)
+			grid_color = grid_cursor_ghost_colors[id];
 		else
 			grid_color = grid_cursor_colors[id];
 		SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
@@ -147,9 +151,9 @@ int main()
 	int grid_cell_size = GRID_SIZE;
     int grid_width = BWIDTH;
     int grid_height = BHEIGHT;
-	int rotation = 0;
 	id = 0;
 	chessman = 0;
+	rotation = 0;
 	bool firstround = true;
 	double interval = SDL_TICKSPEED/FPS_LIMIT;
 	Uint32 next_time;
