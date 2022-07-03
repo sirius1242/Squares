@@ -1,13 +1,13 @@
 #include <iostream>
-#include <memory.h>
+#include <vector>
 #include <set>
 using namespace std;;
 
 #define BWIDTH 21
 #define BHEIGHT 21
-#define PNUM 4
-#define CHESSNUM 21
-#define MAXSIZE 5
+#define PNUM 4 // Max player number
+#define CHESSNUM 21 // chessman numbers
+#define MAXSIZE 5 // chessman max grid size
 
 class squares{
 	public:
@@ -22,9 +22,9 @@ class squares{
 		bool tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		shape rotate(int cmnum, int rotation);
+		bool check(vector<int> &loseplayers); // check if someone lose
 		int getelem(int y, int x) {return board[y][x];};
 		bool checkused(int cmnum, int np) {return chesses[np][cmnum].use;};
-		bool check();
 
 	private:
 		int board[BWIDTH][BHEIGHT];

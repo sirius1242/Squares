@@ -234,6 +234,12 @@ int main()
 							board.insert(chessman, rotation, make_pair(grid_cursor.y/GRID_SIZE, grid_cursor.x/GRID_SIZE), id, firstround);
 							if (firstround)
 								firstround = false;
+							/* four clients on one client
+							if (firstround && id==3)
+								firstround = false;
+							id++;
+							id%=4;
+							*/
 						}
 					}
 					else if (event.motion.y < selector_height)
@@ -302,7 +308,7 @@ int main()
         // Draw grid ghost cursor.
         if (mouse_active && mouse_hover && render_ghost(grid_cursor_ghost, window_height, board_width, chessman, rotation)) {
 			if (board.tryinsert(chessman, rotation, make_pair(grid_cursor_ghost.y/GRID_SIZE, grid_cursor_ghost.x/GRID_SIZE), id, firstround))
-				insert(renderer, chessman, grid_cursor_ghost, grid_cursor_ghost_color, rotation);
+				insert(renderer, chessman, grid_cursor_ghost, grid_cursor_ghost_colors[id], rotation);
 			else
 				insert(renderer, chessman, grid_cursor_ghost, grid_wrong_color, rotation);
 			/*

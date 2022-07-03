@@ -4,12 +4,12 @@
 #include "board.hpp"
 
 using namespace std;
-#define GRID_SIZE 36
-#define W_SELECTOR 16
-#define H_ROTATOR 4
-#define S_SELECELL 24
-#define S_ROTACELL 16
-#define W_ROTATOR 6
+#define GRID_SIZE 36 // grid size on board
+#define W_SELECTOR 16 // selector width
+#define H_ROTATOR 4 // rotator height
+#define S_SELECELL 24 // selector cell size
+#define S_ROTACELL 16 // rotator cell size
+#define W_ROTATOR 6 // rotator width
 #define FPS_LIMIT 60
 #define SDL_TICKSPEED 1000
 

@@ -13,9 +13,11 @@ include_directories(
 file(GLOB COMMON
 	"include/board.hpp"
 	"include/client.hpp"
+	"include/server.hpp"
 	"src/board.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${COMMON} "src/client.cpp")
+add_executable(${PROJECT_NAME}-sever ${COMMON} "src/server.cpp")
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})

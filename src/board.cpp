@@ -173,3 +173,8 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 	}
 	return dst;
 }
+
+bool squares::check(vector<int> &loseplayers)
+{
+	return true;
+}
