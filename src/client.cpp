@@ -19,6 +19,8 @@ Squares board;
 int id;
 int chessman;
 int rotation;
+int active_player;
+int firstround;
 std::set<int> lostplayers;
 // strawberry, chartreuse, arctic, yellow
 SDL_Color grid_cursor_ghost_colors[4] = {{0xF7, 0x4F, 0x52, 127}, {0xB3, 0xFB, 0x3B, 127}, {0x89, 0xEC, 0xFC, 127}, {0xFC, 0xE5, 0x4F, 127}};
@@ -106,7 +108,7 @@ void render_selector(SDL_Renderer *renderer, int xoffset, int id)
         SDL_Color grid_color;
         if (board.checkused(i, id))
             grid_color = grid_wrong_color;
-        else if (chessman == i)
+        else if (chessman == i && active_player == id)
             grid_color = grid_cursor_ghost_colors[id];
         else
             grid_color = grid_cursor_colors[id];
@@ -134,7 +136,7 @@ void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum,
         Shape rotator;
         if (board.checkused(cmnum, id))
             grid_color = grid_wrong_color;
-        else if (rotation == i)
+        else if (rotation == i && active_player == id)
             grid_color = grid_cursor_ghost_colors[id];
         else
             grid_color = grid_cursor_colors[id];
@@ -169,6 +171,58 @@ bool render_ghost(SDL_Rect &topleft, int yoffset, int xoffset, int cmnum, int ro
     return true;
 }
 
+bool after_move(bool single_client)
+{
+    // four clients on one client
+    if (single_client)
+    {
+        if (!firstround)
+        {
+            if (int loseplayers = board.check())
+            {
+                int i = 0;
+                while (loseplayers)
+                {
+                    if (loseplayers % 2 == 1)
+                    {
+                        lostplayers.insert(i);
+                        if (lostplayers.size() == PNUM)
+                            std::cout << "player " << i << "win!" << std::endl;
+                        else
+                            std::cout << "player " << i << " lost!" << std::endl;
+                    }
+                    loseplayers >>= 1;
+                    i++;
+                }
+            }
+        }
+        if (firstround && id == 3)
+            firstround = false;
+        id++;
+        if (!lostplayers.empty())
+        {
+            if (lostplayers.size() == PNUM)
+            {
+                active_player = -1;
+                return false;
+            }
+            while (lostplayers.count(id))
+            {
+                id++;
+                id %= 4;
+            }
+        }
+        id %= 4;
+        active_player = id;
+    }
+    else
+    {
+        if (firstround)
+            firstround = false;
+    }
+    return true;
+}
+
 int main()
 {
     board.init();
@@ -176,9 +230,10 @@ int main()
     int grid_width = BWIDTH;
     int grid_height = BHEIGHT;
     id = 0;
+    active_player = 0;
     chessman = 0;
     rotation = 0;
-    bool firstround = true;
+    firstround = true;
     double interval = static_cast<double>(SDL_TICKSPEED) / FPS_LIMIT;
     Uint32 next_time;
 
@@ -257,6 +312,8 @@ int main()
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
+                    if (active_player != id)
+                        break;
                     if (event.button.button == SDL_BUTTON_LEFT)
                     {
                         if (event.motion.x < board_width)
@@ -266,44 +323,8 @@ int main()
                             if (board.tryinsert(chessman, rotation, make_pair(grid_cursor.y / GRID_SIZE, grid_cursor.x / GRID_SIZE), id, firstround))
                             {
                                 board.insert(chessman, rotation, make_pair(grid_cursor.y / GRID_SIZE, grid_cursor.x / GRID_SIZE), id, firstround);
-                                if (firstround)
-                                    firstround = false;
-                                /* four clients on one client
-                                if(!firstround)
-                                {
-                                        if(int loseplayers = board.check())
-                                        {
-                                                int i=0;
-                                                while(loseplayers)
-                                                {
-                                                        if(loseplayers % 2 == 1)
-                                                        {
-                                                                lostplayers.insert(i);
-                                                                if(lostplayers.size() == PNUM)
-                                                                        cout << "player " << i << "win!" << endl;
-                                                                else
-                                                                        cout << "player " << i << " lost!" << endl;
-                                                        }
-                                                        loseplayers >>= 1;
-                                                        i++;
-                                                }
-                                        }
-                                }
-                                if (firstround && id==3)
-                                        firstround = false;
-                                id++;
-                                if(!lostplayers.empty())
-                                {
-                                        if(lostplayers.size() == PNUM)
-                                                break;
-                                        while(lostplayers.count(id))
-                                        {
-                                                id++;
-                                                id%=4;
-                                        }
-                                }
-                                id%=4;
-                                */
+                                if(!after_move(false))
+                                    break;
                             }
                         }
                         else if (event.motion.y < selector_height)

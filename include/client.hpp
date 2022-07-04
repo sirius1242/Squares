@@ -26,6 +26,8 @@ extern Squares board;
 extern int id;
 extern int chessman;
 extern int rotation;
+extern int active_player;
+extern int firstround;
 extern std::set<int> lostplayers;
 extern SDL_Color grid_cursor_ghost_colors[4];
 extern SDL_Color grid_cursor_colors[4];
@@ -39,5 +41,6 @@ void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid
 void render_board(SDL_Renderer *renderer);
 void render_selector(SDL_Renderer *renderer, int xoffset, int id);
 void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum, int id);
+bool after_move(bool single_client);
 
 #endif // _CLIENT_HPP
