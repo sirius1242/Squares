@@ -4,7 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <set>
-using namespace std;;
+
+using std::pair;
+using std::set;
 
 #define BSIZE 21
 #define BWIDTH BSIZE
@@ -30,9 +32,13 @@ class squares{
 		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		shape rotate(int cmnum, int rotation);
 		bool checkplayer(int np);
-		int check(); // check if someone lose
-		int getelem(int y, int x) {return board[y][x];};
-		bool checkused(int cmnum, int np) {return chesses[np][cmnum].use;};
+		int check(); // check if someone loses
+		inline int& getelem(int y, int x) { return board[y][x]; }
+		inline int& at(const coord& c) { return getelem(c.first, c.second); }
+		bool checkused(int cmnum, int np) const { return chesses[np][cmnum].use; }
+		inline bool in_range(const squares::coord &l) const {
+			return l.first >= 0 && l.first < BHEIGHT && l.second >= 0 && l.second < BWIDTH;
+		}
 
 	private:
 		int board[BWIDTH][BHEIGHT];
@@ -50,10 +56,10 @@ class squares{
 														 // **
 			{{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 3, 2, 4}, //***
 														 // *
-			{{{0,0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4}, //**
+			{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4}, //**
 														//**
-			{{{0,0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
-			{{{0,0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
+			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
+			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
 																//*
 			{{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {1, 3}}, 4, 2, 5}, //**
 																 // ***
@@ -87,8 +93,6 @@ class squares{
 			bool use;
 			shape cmshape;
 		} chessman;
-
-		inline int& at(const coord& c) { return board[c.first][c.second]; }
 
 		chessman chesses[PNUM][CHESSNUM];
 		//char colors[4] = {'r', 'y', 'b', 'g'};

@@ -1,12 +1,8 @@
 #include "board.hpp"
 
-template <typename T,typename U>
-std::pair<T,U> operator+(const std::pair<T,U> & l,const std::pair<T,U> & r) {
-	return {l.first+r.first,l.second+r.second};
-}
-
-static bool in_range(const std::pair<int, int> &l) {
-	return l.first >= 0 && l.first < BWIDTH && l.second >= 0 && l.second < BHEIGHT;
+template <typename T, typename U>
+std::pair<T, U> operator+(const std::pair<T, U> &l,const std::pair<T, U> &r) {
+	return {l.first + r.first, l.second + r.second};
 }
 
 void squares::init()
@@ -14,7 +10,7 @@ void squares::init()
 	//memset(board, 0, BWIDTH*BHEIGHT*sizeof(int));
 	lostplayers.clear();
 	for(int i=0; i<BHEIGHT; i++)
-		for(int j=0; j<BHEIGHT; j++)
+		for(int j=0; j<BWIDTH; j++)
 			board[i][j] = -1;
 	for(int i=0; i<PNUM; i++)
 	{
@@ -26,7 +22,7 @@ void squares::init()
 	}
 }
 
-bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
+bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool first_round)
 {
 	//cout << "try to insert chessman in (" << coor_lt.first << ", " << coor_lt.second << ")" << endl;
 	bool canplace = false;
@@ -35,7 +31,7 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 		return false;
 	if(first_round)
 	{
-		pair<int, int> corner = {0, 0};
+		coord corner = {0, 0};
 		switch (np)
 		{
 		case 1:
@@ -56,7 +52,7 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 		for(int i=0; i<tmp.size; i++)
 		{
 			tmp.grids[i] = tmp.grids[i] + coor_lt;
-			if(tmp.grids[i].first < 0 || tmp.grids[i].first >= BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second >= BWIDTH)
+			if (!in_range(tmp.grids[i]))
 				return false;
 			if(tmp.grids[i] == corner)
 				canplace = true;
@@ -64,42 +60,37 @@ bool squares::tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np,
 	}
 	else
 	{
-		set<pair<int, int>> inchess;
+		set<coord> inchess;
 		for(int i=0; i<tmp.size; i++)
 		{
 			tmp.grids[i] = tmp.grids[i] + coor_lt;
-			if(tmp.grids[i].first < 0 || tmp.grids[i].first >= BHEIGHT || tmp.grids[i].second < 0 || tmp.grids[i].second >= BWIDTH)
+			if (!in_range(tmp.grids[i]))
 				return false;
-			if(board[tmp.grids[i].first][tmp.grids[i].second] >= 0) // no other chessman on that grid
+			if (at(tmp.grids[i]) >= 0) // cell is already occupied
 				return false;
 			inchess.insert(tmp.grids[i]);
 		}
 		for(int i=0; i<tmp.size; i++)
 		{
-			pair<int, int> check;
-			for(int j=0; j<4; j++) // check corner
+			coord check;
+			for(const auto& edge : edges) // check edges
 			{
-				check = tmp.grids[i] + corners[j];
-				if(check.first < 0 || check.first >= BHEIGHT || check.second < 0 || check.second >= BWIDTH)
+				check = tmp.grids[i] + edge;
+				if (!in_range(check))
 					continue;
 				if(!inchess.count(check)&&board[check.first][check.second] == np)
 				{
-					canplace = true;
-					break;
+					return false;
 				}
 			}
-		}
-		for(int i=0; i<tmp.size; i++)
-		{
-			pair<int, int> check;
-			for(int j=0; j<4; j++) // check edge
+			for(const auto& corner : corners) // check corners
 			{
-				check = tmp.grids[i] + edges[j];
-				if(check.first < 0 || check.first >= BHEIGHT || check.second < 0 || check.second >= BWIDTH)
+				check = tmp.grids[i] + corner;
+				if (!in_range(check))
 					continue;
-				if(!inchess.count(check)&&board[check.first][check.second] == np)
+				if(!inchess.count(check) && at(check) == np)
 				{
-					canplace = false;
+					canplace = true;
 					break;
 				}
 			}
@@ -185,12 +176,12 @@ bool squares::checkplayer(int np) {
 	 *	 1: This cell is diagonally adjacent to an existing piece
 	 *	 2: This cell is orthogonally adjacent to, or already covered by, an existing piece
 	 */
-	int bstatus[BWIDTH][BHEIGHT] = {};
+	int bstatus[BHEIGHT][BWIDTH] = {};
 	for (int y = 0; y < BHEIGHT; y++) {
 		for (int x = 0; x < BWIDTH; x++) {
-			coord pos = {x, y};
+			coord pos = {y, x};
 			// Mark occupied cells
-			if (at(pos) != -1)
+			if (at(pos) >= 0)
 				bstatus[pos.first][pos.second] = 2;
 			// Calculate adjacency only for same-color cells
 			if (at(pos) != np)
@@ -211,7 +202,7 @@ bool squares::checkplayer(int np) {
 	std::vector<coord> musts;
 	for (int y = 0; y < BHEIGHT; y++) {
 		for (int x = 0; x < BWIDTH; x++) {
-			coord pos = {x, y};
+			coord pos = {y, x};
 			if (bstatus[pos.first][pos.second] == 1)
 				musts.push_back(pos);
 		}
@@ -232,7 +223,7 @@ bool squares::checkplayer(int np) {
 				}
 				for (int y = 0; y < loop_h; y++) {
 					for (int x = 0; x < loop_w; x++) {
-						coord off(-x, -y); // Move up and left
+						coord off = {-y, -x}; // Move up and left
 						coord pos = must + off;
 						if (in_range(pos) && tryinsert(i, r, pos, np, false))
 							return true;
