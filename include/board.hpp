@@ -2,8 +2,8 @@
 #define _BOARD_HPP
 
 #include <iostream>
-#include <vector>
 #include <set>
+#include <vector>
 
 using std::pair;
 using std::set;
@@ -11,94 +11,98 @@ using std::set;
 #define BSIZE 21
 #define BWIDTH BSIZE
 #define BHEIGHT BSIZE
-#define PNUM 4 // Max player number
+#define PNUM 4      // Max player number
 #define CHESSNUM 21 // chessman numbers
-#define MAXSIZE 5 // chessman max grid size
+#define MAXSIZE 5   // chessman max grid size
 #define ROTATIONS 8 // Number of possible rotations
 
-class squares{
-	public:
-		using coord = std::pair<int, int>;
+class squares
+{
+   public:
+    using coord = std::pair<int, int>;
 
-		typedef struct {
-			coord grids[MAXSIZE];
-			int width;
-			int height;
-			int size;
-		} shape;
+    typedef struct
+    {
+        coord grids[MAXSIZE];
+        int width;
+        int height;
+        int size;
+    } shape;
 
-		void init();
-		bool tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
-		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
-		shape rotate(int cmnum, int rotation);
-		bool checkplayer(int np);
-		int check(); // check if someone loses
-		inline int& getelem(int y, int x) { return board[y][x]; }
-		inline int& at(const coord& c) { return getelem(c.first, c.second); }
-		bool checkused(int cmnum, int np) const { return chesses[np][cmnum].use; }
-		inline bool in_range(const squares::coord &l) const {
-			return l.first >= 0 && l.first < BHEIGHT && l.second >= 0 && l.second < BWIDTH;
-		}
+    void init();
+    bool tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
+    void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
+    shape rotate(int cmnum, int rotation);
+    bool checkplayer(int np);
+    int check(); // check if someone loses
+    inline int& getelem(int y, int x) { return board[y][x]; }
+    inline int& at(const coord& c) { return getelem(c.first, c.second); }
+    bool checkused(int cmnum, int np) const { return chesses[np][cmnum].use; }
+    inline bool in_range(const squares::coord& l) const
+    {
+        return l.first >= 0 && l.first < BHEIGHT && l.second >= 0 && l.second < BWIDTH;
+    }
 
-	private:
-		int board[BWIDTH][BHEIGHT];
+   private:
+    int board[BWIDTH][BHEIGHT];
 
-		shape chessshapes[21] = {
-			{{{0, 0}}, 1, 1, 1}, // *
-			{{{0, 0}, {0, 1}}, 2, 1, 2}, // **
-			{{{0, 0}, {0, 1}, {0, 2}}, 3, 1, 3}, //***
-			{{{0, 0}, {0, 1}, {1, 0}}, 2, 2, 3}, //**
-												 //*
-			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 4, 1, 4}, //****
-			{{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, 3, 2, 4}, //***
-														 //*
-			{{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 3, 2, 4}, //**
-														 // **
-			{{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 3, 2, 4}, //***
-														 // *
-			{{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4}, //**
-														//**
-			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
-			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
-																//*
-			{{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {1, 3}}, 4, 2, 5}, //**
-																 // ***
-			{{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}}, 4, 2, 5}, //****
-																 // *
-			{{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {2, 0}}, 3, 3, 5}, //***
-																 //*
-																 //*
-			{{{0, 0}, {0, 1}, {1, 1}, {2, 1}, {2, 2}}, 3, 3, 5}, //**
-																 // *
-																 // **
-			{{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, //*
-																 //***
-																 // *
-			{{{0, 1}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, // *
-																 //***
-																 // *
-			{{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {2, 2}}, 3, 3, 5}, //**
-																 // **
-																 //  *
-			{{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 0}}, 3, 3, 5}, //*
-																 //***
-																 //*
-			{{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}}, 3, 2, 5}, //***
-																 //**
-			{{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}}, 3, 2, 5} //***
-																//* *
-		};
+    shape chessshapes[21] = {
+        {{{0, 0}}, 1, 1, 1},                                 // *
+        {{{0, 0}, {0, 1}}, 2, 1, 2},                         // **
+        {{{0, 0}, {0, 1}, {0, 2}}, 3, 1, 3},                 //***
+        {{{0, 0}, {0, 1}, {1, 0}}, 2, 2, 3},                 //**
+                                                             //*
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 4, 1, 4},         //****
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, 3, 2, 4},         //***
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 3, 2, 4},         //**
+                                                             // **
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 3, 2, 4},         //***
+                                                             // *
+        {{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4},         //**
+                                                             //**
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {1, 3}}, 4, 2, 5}, //**
+                                                             // ***
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}}, 4, 2, 5}, //****
+                                                             // *
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {2, 0}}, 3, 3, 5}, //***
+                                                             //*
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {2, 1}, {2, 2}}, 3, 3, 5}, //**
+                                                             // *
+                                                             // **
+        {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, //*
+                                                             //***
+                                                             // *
+        {{{0, 1}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, // *
+                                                             //***
+                                                             // *
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {2, 2}}, 3, 3, 5}, //**
+                                                             // **
+                                                             //  *
+        {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 0}}, 3, 3, 5}, //*
+                                                             //***
+                                                             //*
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}}, 3, 2, 5}, //***
+                                                             //**
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}}, 3, 2, 5}  //***
+                                                             //* *
+    };
 
-		typedef struct {
-			bool use;
-			shape cmshape;
-		} chessman;
+    typedef struct
+    {
+        bool use;
+        shape cmshape;
+    } chessman;
 
-		chessman chesses[PNUM][CHESSNUM];
-		//char colors[4] = {'r', 'y', 'b', 'g'};
-		coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-		coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-		set<int> lostplayers;
+    chessman chesses[PNUM][CHESSNUM];
+    // char colors[4] = {'r', 'y', 'b', 'g'};
+    coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+    set<int> lostplayers;
 };
 
 #endif // _BOARD_HPP
