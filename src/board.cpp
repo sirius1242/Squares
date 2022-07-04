@@ -151,7 +151,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 
 		case 4:
 			dst.grids[i].first = src->grids[i].first;
-			dst.grids[i].second = dst.height - src->grids[i].second - 1;
+			dst.grids[i].second = dst.width - src->grids[i].second - 1;
 			break;
 
 		case 5:
@@ -160,7 +160,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
 			break;
 
 		case 6:
-			dst.grids[i].first = dst.width - src->grids[i].first - 1;
+			dst.grids[i].first = dst.height - src->grids[i].first - 1;
 			dst.grids[i].second = src->grids[i].second;
 			break;
 
