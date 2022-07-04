@@ -1,12 +1,65 @@
 #include "board.hpp"
 
+const Shape chessshapes[21] = {
+    {{{0, 0}}, 1, 1, 1},                                 // *
+    {{{0, 0}, {0, 1}}, 2, 1, 2},                         // **
+    {{{0, 0}, {0, 1}, {0, 2}}, 3, 1, 3},                 //***
+    {{{0, 0}, {0, 1}, {1, 0}}, 2, 2, 3},                 //**
+                                                         //*
+    {{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 4, 1, 4},         //****
+    {{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, 3, 2, 4},         //***
+                                                         //*
+    {{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 3, 2, 4},         //**
+                                                         // **
+    {{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 3, 2, 4},         //***
+                                                         // *
+    {{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4},         //**
+                                                         //**
+    {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
+    {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
+                                                         //*
+    {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {1, 3}}, 4, 2, 5}, //**
+                                                         // ***
+    {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}}, 4, 2, 5}, //****
+                                                         // *
+    {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {2, 0}}, 3, 3, 5}, //***
+                                                         //*
+                                                         //*
+    {{{0, 0}, {0, 1}, {1, 1}, {2, 1}, {2, 2}}, 3, 3, 5}, //**
+                                                         // *
+                                                         // **
+    {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, //*
+                                                         //***
+                                                         // *
+    {{{0, 1}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, // *
+                                                         //***
+                                                         // *
+    {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {2, 2}}, 3, 3, 5}, //**
+                                                         // **
+                                                         //  *
+    {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 0}}, 3, 3, 5}, //*
+                                                         //***
+                                                         //*
+    {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}}, 3, 2, 5}, //***
+                                                         //**
+    {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}}, 3, 2, 5}  //***
+                                                         //* *
+};
+// const char colors[4] = {'r', 'y', 'b', 'g'};
+const Coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+const Coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+
 template <typename T, typename U>
 std::pair<T, U> operator+(const std::pair<T, U>& l, const std::pair<T, U>& r)
 {
     return {l.first + r.first, l.second + r.second};
 }
 
-void squares::init()
+Squares::Squares() {
+    init();
+}
+
+void Squares::init()
 {
     // memset(board, 0, BWIDTH*BHEIGHT*sizeof(int));
     lostplayers.clear();
@@ -23,16 +76,16 @@ void squares::init()
     }
 }
 
-bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool first_round)
+bool Squares::tryinsert(int cmnum, int rotation, Coord coor_lt, int np, bool first_round)
 {
     // cout << "try to insert chessman in (" << coor_lt.first << ", " << coor_lt.second << ")" << endl;
     bool canplace = false;
-    squares::shape tmp = rotate(cmnum, rotation);
+    Shape tmp = rotate(cmnum, rotation);
     if (chesses[np][cmnum].use)
         return false;
     if (first_round)
     {
-        coord corner = {0, 0};
+        Coord corner = {0, 0};
         switch (np)
         {
             case 1:
@@ -61,7 +114,7 @@ bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool fir
     }
     else
     {
-        set<coord> inchess;
+        std::set<Coord> inchess;
         for (int i = 0; i < tmp.size; i++)
         {
             tmp.grids[i] = tmp.grids[i] + coor_lt;
@@ -73,7 +126,7 @@ bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool fir
         }
         for (int i = 0; i < tmp.size; i++)
         {
-            coord check;
+            Coord check;
             for (const auto& edge : edges) // check edges
             {
                 check = tmp.grids[i] + edge;
@@ -100,18 +153,18 @@ bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool fir
     return canplace;
 }
 
-void squares::insert(int cmnum, int rotation, coord coor_lt, int np, bool first_round)
+void Squares::insert(int cmnum, int rotation, Coord coor_lt, int np, bool first_round)
 {
-    squares::shape tmp = rotate(cmnum, rotation);
+    Shape tmp = rotate(cmnum, rotation);
     for (int i = 0; i < tmp.size; i++)
         at(tmp.grids[i] + coor_lt) = np;
     chesses[np][cmnum].use = true;
 }
 
-squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 is 270, clockwise
+Shape Squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 is 270, clockwise
 {
-    squares::shape dst;
-    const squares::shape& src = chessshapes[cmnum];
+    Shape dst;
+    const Shape& src = chessshapes[cmnum];
     dst.size = src.size;
     if (rotation % 2 == 0)
     {
@@ -176,7 +229,7 @@ squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 
  *
  * @return Whether the player can place a piece
  */
-bool squares::checkplayer(int np)
+bool Squares::checkplayer(int np)
 {
     /** bstatus: Board status
      *	 0: This cell is not adjacent to any existing pieces
@@ -188,7 +241,7 @@ bool squares::checkplayer(int np)
     {
         for (int x = 0; x < BWIDTH; x++)
         {
-            coord pos = {y, x};
+            Coord pos = {y, x};
             // Mark occupied cells
             if (at(pos) >= 0)
                 bstatus[pos.first][pos.second] = 2;
@@ -198,24 +251,24 @@ bool squares::checkplayer(int np)
 
             for (const auto& edge : edges)
             {
-                coord newpos = pos + edge;
+                Coord newpos = pos + edge;
                 if (in_range(newpos))
                     bstatus[newpos.first][newpos.second] = 2;
             }
             for (const auto& corner : corners)
             {
-                coord newpos = pos + corner;
+                Coord newpos = pos + corner;
                 if (in_range(newpos) && bstatus[newpos.first][newpos.second] < 2)
                     bstatus[newpos.first][newpos.second] = 1;
             }
         }
     }
-    std::vector<coord> musts;
+    std::vector<Coord> musts;
     for (int y = 0; y < BHEIGHT; y++)
     {
         for (int x = 0; x < BWIDTH; x++)
         {
-            coord pos = {y, x};
+            Coord pos = {y, x};
             if (bstatus[pos.first][pos.second] == 1)
                 musts.push_back(pos);
         }
@@ -226,7 +279,7 @@ bool squares::checkplayer(int np)
     {
         if (checkused(i, np))
             continue;
-        for (const coord& must : musts)
+        for (const Coord& must : musts)
         {
             for (int r = 0; r < ROTATIONS; r++)
             {
@@ -242,8 +295,8 @@ bool squares::checkplayer(int np)
                 {
                     for (int x = 0; x < loop_w; x++)
                     {
-                        coord off = {-y, -x}; // Move up and left
-                        coord pos = must + off;
+                        Coord off = {-y, -x}; // Move up and left
+                        Coord pos = must + off;
                         if (in_range(pos) && tryinsert(i, r, pos, np, false))
                             return true;
                     }
@@ -254,7 +307,7 @@ bool squares::checkplayer(int np)
     return false;
 }
 
-int squares::check()
+int Squares::check()
 {
     int loseplayers = 0;
     for (int i = 0; i < PNUM; i++)
