@@ -99,77 +99,82 @@ bool squares::tryinsert(int cmnum, int rotation, coord coor_lt, int np, bool fir
 	return canplace;
 }
 
-void squares::insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round)
+void squares::insert(int cmnum, int rotation, coord coor_lt, int np, bool first_round)
 {
 	squares::shape tmp = rotate(cmnum, rotation);
 	for(int i=0; i<tmp.size; i++)
-		board[tmp.grids[i].first + coor_lt.first][tmp.grids[i].second + coor_lt.second] = np;
+		at(tmp.grids[i] + coor_lt) = np;
 	chesses[np][cmnum].use = true;
 }
 
 squares::shape squares::rotate(int cmnum, int rotation) // 1 is 90, 2 is 180, 3 is 270, clockwise
 {
 	squares::shape dst;
-	squares::shape *src = &chessshapes[cmnum];
-	dst.size = src->size;
+	const squares::shape &src = chessshapes[cmnum];
+	dst.size = src.size;
 	if(rotation % 2 == 0)
 	{
-		dst.height = src->height;
-		dst.width = src->width;
+		dst.height = src.height;
+		dst.width = src.width;
 	}
 	else
 	{
-		dst.height = src->width;
-		dst.width = src->height;
+		dst.height = src.width;
+		dst.width = src.height;
 	}
 	for(int i=0;i<dst.size;i++)
 	{
 		switch (rotation)
 		{
 		case 1:
-			dst.grids[i].first = src->grids[i].second;
-			dst.grids[i].second = dst.width - src->grids[i].first - 1;
+			dst.grids[i].first = src.grids[i].second;
+			dst.grids[i].second = dst.width - src.grids[i].first - 1;
 			break;
 
 		case 2:
-			dst.grids[i].first = dst.height - src->grids[i].first - 1;
-			dst.grids[i].second = dst.width - src->grids[i].second - 1;
+			dst.grids[i].first = dst.height - src.grids[i].first - 1;
+			dst.grids[i].second = dst.width - src.grids[i].second - 1;
 			break;
 
 		case 3:
-			dst.grids[i].first = dst.height - src->grids[i].second - 1;
-			dst.grids[i].second = src->grids[i].first;
+			dst.grids[i].first = dst.height - src.grids[i].second - 1;
+			dst.grids[i].second = src.grids[i].first;
 			break;
 
 		case 4:
-			dst.grids[i].first = src->grids[i].first;
-			dst.grids[i].second = dst.width - src->grids[i].second - 1;
+			dst.grids[i].first = src.grids[i].first;
+			dst.grids[i].second = dst.width - src.grids[i].second - 1;
 			break;
 
 		case 5:
-			dst.grids[i].first = dst.height - src->grids[i].second - 1;
-			dst.grids[i].second = dst.width - src->grids[i].first - 1;
+			dst.grids[i].first = dst.height - src.grids[i].second - 1;
+			dst.grids[i].second = dst.width - src.grids[i].first - 1;
 			break;
 
 		case 6:
-			dst.grids[i].first = dst.height - src->grids[i].first - 1;
-			dst.grids[i].second = src->grids[i].second;
+			dst.grids[i].first = dst.height - src.grids[i].first - 1;
+			dst.grids[i].second = src.grids[i].second;
 			break;
 
 		case 7:
-			dst.grids[i].first = src->grids[i].second;
-			dst.grids[i].second = src->grids[i].first;
+			dst.grids[i].first = src.grids[i].second;
+			dst.grids[i].second = src.grids[i].first;
 			break;
 
 		default:
-			dst.grids[i].first = src->grids[i].first;
-			dst.grids[i].second = src->grids[i].second;
+			dst.grids[i].first = src.grids[i].first;
+			dst.grids[i].second = src.grids[i].second;
 			break;
 		}
 	}
 	return dst;
 }
 
+/**
+ * Check if a player has any valid move available
+ *
+ * @return Whether the player can place a piece
+ */
 bool squares::checkplayer(int np) {
 	/** bstatus: Board status
 	 *	 0: This cell is not adjacent to any existing pieces
@@ -242,7 +247,7 @@ int squares::check()
 	{
 		if (lostplayers.count(i) == 0 && !checkplayer(i))
 		{
-			loseplayers += 1<<i;
+			loseplayers |= 1 << i;
 			lostplayers.insert(i);
 		}
 	}
