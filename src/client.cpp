@@ -239,9 +239,39 @@ int main()
 							if (firstround)
 								firstround = false;
 							/* four clients on one client
+							if(!firstround)
+							{
+								if(int loseplayers = board.check())
+								{
+									int i=0;
+									while(loseplayers)
+									{
+										if(loseplayers % 2 == 1)
+										{
+											lostplayers.insert(i);
+											if(lostplayers.size() == PNUM)
+												cout << "player " << i << "win!" << endl;
+											else
+												cout << "player " << i << " lost!" << endl;
+										}
+										loseplayers >>= 1;
+										i++;
+									}
+								}
+							}
 							if (firstround && id==3)
 								firstround = false;
 							id++;
+							if(!lostplayers.empty())
+							{
+								if(lostplayers.size() == PNUM)
+									break;
+								while(lostplayers.count(id))
+								{
+									id++;
+									id%=4;
+								}
+							}
 							id%=4;
 							*/
 						}

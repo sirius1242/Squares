@@ -12,6 +12,7 @@ static bool in_range(const std::pair<int, int> &l) {
 void squares::init()
 {
 	//memset(board, 0, BWIDTH*BHEIGHT*sizeof(int));
+	lostplayers.clear();
 	for(int i=0; i<BHEIGHT; i++)
 		for(int j=0; j<BHEIGHT; j++)
 			board[i][j] = -1;
@@ -243,10 +244,16 @@ bool squares::checkplayer(int np) {
 	return false;
 }
 
-bool squares::check(vector<int> &loseplayers)
+int squares::check()
 {
+	int loseplayers = 0;
 	for (int i = 0; i < PNUM; i++)
-		if (!checkplayer(i))
-			loseplayers.push_back(i);
-	return true;
+	{
+		if (lostplayers.count(i) == 0 && !checkplayer(i))
+		{
+			loseplayers += 1<<i;
+			lostplayers.insert(i);
+		}
+	}
+	return loseplayers;
 }

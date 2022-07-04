@@ -30,7 +30,7 @@ class squares{
 		void insert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
 		shape rotate(int cmnum, int rotation);
 		bool checkplayer(int np);
-		bool check(vector<int> &loseplayers); // check if someone lose
+		int check(); // check if someone lose
 		int getelem(int y, int x) {return board[y][x];};
 		bool checkused(int cmnum, int np) {return chesses[np][cmnum].use;};
 
@@ -94,6 +94,7 @@ class squares{
 		//char colors[4] = {'r', 'y', 'b', 'g'};
 		coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
 		coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+		set<int> lostplayers;
 };
 
 #endif // _BOARD_HPP
