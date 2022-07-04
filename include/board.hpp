@@ -17,28 +17,22 @@ using std::pair;
 
 using Coord = std::pair<int, int>;
 
-struct Shape
-{
-    Coord grids[MAXSIZE];
-    int width;
-    int height;
-    int size;
-};
-
-struct Chessman
-{
-    bool use;
-    Shape cmshape;
-};
-
-extern const Shape chessshapes[CHESSNUM];
-extern const Coord corners[4];
-extern const Coord edges[4];
-
 class Squares
 {
    public:
+    struct Shape
+    {
+        Coord grids[MAXSIZE];
+        int width;
+        int height;
+        int size;
+    };
 
+    struct Chessman
+    {
+        bool use;
+        Shape cmshape;
+    };
     void init();
     Squares();
     bool tryinsert(int cmnum, int rotation, pair<int, int> coor_lt, int np, bool first_round);
@@ -58,6 +52,55 @@ class Squares
     int board[BWIDTH][BHEIGHT];
     Chessman chesses[PNUM][CHESSNUM];
     std::set<int> lostplayers;
+
+    static constexpr Shape chessshapes[21] = {
+        {{{0, 0}}, 1, 1, 1},                                 // *
+        {{{0, 0}, {0, 1}}, 2, 1, 2},                         // **
+        {{{0, 0}, {0, 1}, {0, 2}}, 3, 1, 3},                 //***
+        {{{0, 0}, {0, 1}, {1, 0}}, 2, 2, 3},                 //**
+                                                             //*
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}}, 4, 1, 4},         //****
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}}, 3, 2, 4},         //***
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}}, 3, 2, 4},         //**
+                                                             // **
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 1}}, 3, 2, 4},         //***
+                                                             // *
+        {{{0, 0}, {0, 1}, {1, 0}, {1, 1}}, 2, 2, 4},         //**
+                                                             //**
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}, 5, 1, 5}, //*****
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}}, 4, 2, 5}, //****
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {1, 3}}, 4, 2, 5}, //**
+                                                             // ***
+        {{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 1}}, 4, 2, 5}, //****
+                                                             // *
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {2, 0}}, 3, 3, 5}, //***
+                                                             //*
+                                                             //*
+        {{{0, 0}, {0, 1}, {1, 1}, {2, 1}, {2, 2}}, 3, 3, 5}, //**
+                                                             // *
+                                                             // **
+        {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, //*
+                                                             //***
+                                                             // *
+        {{{0, 1}, {1, 0}, {1, 1}, {1, 2}, {2, 1}}, 3, 3, 5}, // *
+                                                             //***
+                                                             // *
+        {{{0, 0}, {0, 1}, {1, 1}, {1, 2}, {2, 2}}, 3, 3, 5}, //**
+                                                             // **
+                                                             //  *
+        {{{0, 0}, {1, 0}, {1, 1}, {1, 2}, {2, 0}}, 3, 3, 5}, //*
+                                                             //***
+                                                             //*
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}}, 3, 2, 5}, //***
+                                                             //**
+        {{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}}, 3, 2, 5}  //***
+                                                             //* *
+    };
+    // const char colors[4] = {'r', 'y', 'b', 'g'};
+    const Coord corners[4] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    const Coord edges[4] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 };
 
 #endif // _BOARD_HPP

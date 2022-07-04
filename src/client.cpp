@@ -71,7 +71,7 @@ int is_rotator(int x, int y, int xoffset, int yoffset, int cmnum)
 void insert(SDL_Renderer *renderer, int cmnum, SDL_Rect &topleft, SDL_Color grid_color, int rotation)
 {
     SDL_SetRenderDrawColor(renderer, grid_color.r, grid_color.g, grid_color.b, grid_color.a);
-    Shape chessman = board.rotate(cmnum, rotation);
+    Squares::Shape chessman = board.rotate(cmnum, rotation);
     for (int i = 0; i < chessman.size; i++)
     {
         SDL_Rect tmp = topleft;
@@ -133,7 +133,7 @@ void render_rotator(SDL_Renderer *renderer, int yoffset, int xoffset, int cmnum,
     {
         SDL_Rect base;
         SDL_Color grid_color;
-        Shape rotator;
+        Squares::Shape rotator;
         if (board.checkused(cmnum, id))
             grid_color = grid_wrong_color;
         else if (rotation == i && active_player == id)
@@ -323,7 +323,7 @@ int main()
                             if (board.tryinsert(chessman, rotation, make_pair(grid_cursor.y / GRID_SIZE, grid_cursor.x / GRID_SIZE), id, firstround))
                             {
                                 board.insert(chessman, rotation, make_pair(grid_cursor.y / GRID_SIZE, grid_cursor.x / GRID_SIZE), id, firstround);
-                                if(!after_move(false))
+                                if (!after_move(false))
                                     break;
                             }
                         }

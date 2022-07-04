@@ -16,24 +16,27 @@ class SServer
 {
    public:
     void init();
-    void round();
+    SServer();
+    void begin();
+    bool round(bool firstround);
     bool waitplayers();
-    void waitplayerid(int id);
+    void waitplayerid(int id, int (&insert_args)[4]);
+    void broadcast_move(int insert_args[4]);
     void syncboard(int id);
-    void sigchld_handler(int s);
     void *get_in_addr(struct sockaddr *sa);
+    bool after_move(bool firstround);
+    void end_game();
 
    private:
-    squares board;
-    int playernum;
+    Squares board;
     int lastwin;
-    bool firstround;
-    set<int> players;
+    int active_player;
+    set<int> lostplayers;
 
     int sockfd, newsockfd;
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage addrs;
     struct sigaction sa;
-    struct sockaddr_storage cli_addr;
+    struct sockaddr_storage cli_addrs[PNUM];
     char s[INET6_ADDRSTRLEN];
 };
