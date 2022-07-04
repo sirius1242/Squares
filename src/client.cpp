@@ -20,7 +20,7 @@ int id;
 int chessman;
 int rotation;
 int active_player;
-int firstround;
+bool firstround;
 std::set<int> lostplayers;
 // strawberry, chartreuse, arctic, yellow
 SDL_Color grid_cursor_ghost_colors[4] = {{0xF7, 0x4F, 0x52, 127}, {0xB3, 0xFB, 0x3B, 127}, {0x89, 0xEC, 0xFC, 127}, {0xFC, 0xE5, 0x4F, 127}};

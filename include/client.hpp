@@ -27,7 +27,7 @@ extern int id;
 extern int chessman;
 extern int rotation;
 extern int active_player;
-extern int firstround;
+extern bool firstround;
 extern std::set<int> lostplayers;
 extern SDL_Color grid_cursor_ghost_colors[4];
 extern SDL_Color grid_cursor_colors[4];
