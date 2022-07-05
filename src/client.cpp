@@ -173,53 +173,51 @@ bool render_ghost(SDL_Rect &topleft, int yoffset, int xoffset, int cmnum, int ro
 
 bool after_move(bool single_client)
 {
+    if (!single_client)
+    {
+        firstround = false;
+        return true;
+    }
+
     // four clients on one client
-    if (single_client)
+    if (!firstround)
     {
-        if (!firstround)
+        if (int loseplayers = board.check())
         {
-            if (int loseplayers = board.check())
+            int i = 0;
+            while (loseplayers)
             {
-                int i = 0;
-                while (loseplayers)
+                if (loseplayers % 2 == 1)
                 {
-                    if (loseplayers % 2 == 1)
-                    {
-                        lostplayers.insert(i);
-                        if (lostplayers.size() == PNUM)
-                            std::cout << "player " << i << "win!" << std::endl;
-                        else
-                            std::cout << "player " << i << " lost!" << std::endl;
-                    }
-                    loseplayers >>= 1;
-                    i++;
+                    lostplayers.insert(i);
+                    if (lostplayers.size() == PNUM)
+                        std::cout << "Player " << i << " wins!" << std::endl;
+                    else
+                        std::cout << "Player " << i << " loses!" << std::endl;
                 }
+                loseplayers >>= 1;
+                i++;
             }
         }
-        if (firstround && id == 3)
-            firstround = false;
-        id++;
-        if (!lostplayers.empty())
-        {
-            if (lostplayers.size() == PNUM)
-            {
-                active_player = -1;
-                return false;
-            }
-            while (lostplayers.count(id))
-            {
-                id++;
-                id %= 4;
-            }
-        }
-        id %= 4;
-        active_player = id;
     }
-    else
+    if (firstround && id == 3)
+        firstround = false;
+    id++;
+    id %= 4;
+    if (!lostplayers.empty())
     {
-        if (firstround)
-            firstround = false;
+        if (lostplayers.size() == PNUM)
+        {
+            active_player = -1;
+            return false;
+        }
+        while (lostplayers.count(id))
+        {
+            id++;
+            id %= 4;
+        }
     }
+    active_player = id;
     return true;
 }
 

@@ -166,7 +166,7 @@ bool SServer::waitplayers() // wait for all players establish the connect
         struct sockaddr_storage cli_addr;
         socklen_t sin_size = sizeof cli_addr;
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &sin_size);
-        if (newsockfd = -1)
+        if (newsockfd == -1)
         {
             perror("accept");
             continue;
@@ -192,7 +192,7 @@ void SServer::broadcast_move(int insert_args[4]) // broadcast the move of active
 {
 }
 
-void main()
+int main()
 {
     SServer server;
     while (true)
