@@ -18,57 +18,50 @@ void SServer::init()
     hints.ai_flags = AI_PASSIVE;
 }
 
-void SServer::begin()
-{
-    int rv;
-    int yes;
+bool SServer::begin() {
+    int yes = 1;
 
-    // init the server socket
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0)
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+        return false;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(int)) == 1)
     {
-        cerr << "getaddrinfo: " << gai_strerror(rv) << endl;
-        return;
+        perror("setopt");
+        close(sockfd);
+        return false;
     }
 
-    // loop through all the results and bind to the first we can
-    for (p = servinfo; p != NULL; p = p->ai_next)
+    struct sockaddr_in addr = {
+        .sin_family = AF_INET,
+        .sin_port = htons(PORT),
+    };
+    addr.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-        {
-            perror("server: socket");
-            continue;
-        }
-
-        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == 1)
-        {
-            perror("setopt");
-            return;
-        }
-
-        if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-        {
-            close(sockfd);
-            perror("server: bind");
-            continue;
-        }
-
-        break;
-    }
-
-    freeaddrinfo(servinfo); // all done with this structure
-
-    if (p == NULL)
-    {
-        cerr << "server: failed to bind" << endl;
-        return;
+        perror("server: bind");
+        close(sockfd);
+        return false;
     }
 
     if (listen(sockfd, BACKLOG) == -1)
     {
         perror("listen");
-        return;
+        close(sockfd);
+        return false;
     }
 
+    if (p == NULL)
+    {
+        cerr << "server: failed to bind" << endl;
+        return false;
+    }
+
+    return true;
+}
+
+void SServer::run_loop()
+{
     sa.sa_handler = sigchld_handler; // reap all dead processes
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
@@ -78,6 +71,7 @@ void SServer::begin()
         return;
     }
 
+    begin();
     waitplayers();
     round(true);
     while (round(false))
@@ -112,9 +106,9 @@ bool SServer::after_move(bool firstround) // judge whether there are players los
                 {
                     lostplayers.insert(i);
                     if (lostplayers.size() == PNUM)
-                        std::cout << "player " << i << "win!" << std::endl;
+                        std::cout << "Player " << i << " wins!" << std::endl;
                     else
-                        std::cout << "player " << i << " lost!" << std::endl;
+                        std::cout << "Player " << i << " loses!" << std::endl;
                 }
                 loseplayers >>= 1;
                 i++;
@@ -196,5 +190,5 @@ int main()
 {
     SServer server;
     while (true)
-        server.begin();
+        server.run_loop();
 }

@@ -9,7 +9,7 @@
 //#include <sys/types.h>
 //#include <netinet/in.h>
 using namespace std;
-#define PORT "5500"
+#define PORT 5500
 #define BACKLOG 10
 
 class SServer
@@ -17,7 +17,8 @@ class SServer
    public:
     void init();
     SServer();
-    void begin();
+    bool begin();
+    void run_loop();
     bool round(bool firstround);
     bool waitplayers();
     void waitplayerid(int id, int (&insert_args)[4]);
